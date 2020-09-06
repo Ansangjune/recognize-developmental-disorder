@@ -188,15 +188,17 @@ def process(img_bgr, debug):
     img_result = img_bgr.copy()
 
     # STEP 1
-    img_bgr = removeFaceAra(img_bgr, cascade)
+    #img_bgr = removeFaceAra(img_bgr, cascade)
+    
 
     # STEP 2
     img_binary = make_mask_image(img_bgr)
+    cv.imshow("Binary",img_binary)
 
     # STEP 3
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
     img_binary = cv.morphologyEx(img_binary, cv.MORPH_CLOSE, kernel, 1)
-    cv.imshow("Binary", img_binary)
+    #cv.imshow("Binary", img_binary)
 
     # STEP 4
     contours, hierarchy = cv.findContours(
@@ -220,10 +222,12 @@ def process(img_bgr, debug):
     ret, points = getFingerPosition(max_contour, img_result, debug)
 
     # STEP 7
+    global sum_points
+    sum_points = 0
     if ret > 0 and len(points) > 0:
         for point in points:
             cv.circle(img_result, point, 20, [255, 0, 255], 5)
-
+            sum_points+=1
     return img_result
 
 
@@ -233,14 +237,14 @@ cascade = cv.CascadeClassifier(
 )
 
 
-# cap = cv.VideoCapture('test.avi')
+cap = cv.VideoCapture('countHands2.mp4')
 
 #cap = cv.imread('hand1.png')
 
 while True:
 
-    img_bgr = cv.imread('conuntFour.jpg')
-    #ret, img_bgr = cap.read()
+    #img_bgr = cv.imread('conuntTwo.jpg')
+    ret, img_bgr = cap.read()
 
     img_result = process(img_bgr, debug=False)
 
@@ -249,6 +253,7 @@ while True:
         break
 
     cv.imshow("Result", img_result)
+    #print(sum_points)
 
 
 cap.release()
